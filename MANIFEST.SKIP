@@ -1,0 +1,9 @@
+^\.git
+^inc
+^MANIFEST\.bak$
+^Makefile$
+\..*\.swp$
+pm_to_blib
+~$
+\bblib\b
+\b\.xvpics\b

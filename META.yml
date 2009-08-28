@@ -1,0 +1,28 @@
+---
+abstract: 'the simplest COMET server I could imagine'
+author:
+  - 'John BEPPU <beppu@cpan.org>'
+build_requires:
+  ExtUtils::MakeMaker: 6.11
+distribution_type: module
+generated_by: 'Module::Install version 0.79'
+license: mit
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: Stardust
+no_index:
+  directory:
+    - inc
+    - share
+    - t
+requires:
+  AnyEvent::HTTP: 0
+  File::ShareDir: 0
+  Set::Object: 0
+  Squatting: 0.70
+  Sys::Hostname: 0
+  Tenjin: 0
+  aliased: 0
+  perl: 5.8.0
+version: 0.01
