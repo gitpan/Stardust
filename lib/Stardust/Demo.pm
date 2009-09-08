@@ -2,88 +2,155 @@ package Stardust::Demo;
 use strict;
 use warnings;
 use base 'Squatting';
+use Data::Dump 'pp';
 
 package Stardust::Demo::Controllers;
 use Squatting ':controllers';
 use AnyEvent::HTTP;
+use JSON;
+use Data::Dump 'pp';
+use aliased 'Squatting::H';
 
-# XXX HACK XXX
-my $stardust = "http://localhost:5742/comet/channel/foo";
+our $Box = H->new({
+  id    => "",
+  color => "#dea",
+});
 
+our $boxes = H->new({
+  columns => 8,
+  rows    => 16,
+  map     => [],
+  init    => sub {
+    my ($self) = @_;
+    $self->map([]);
+    my $rows = $self->rows;
+    my $columns = $self->columns;
+    for my $i (0 .. $rows) {
+      for my $j (0 .. $columns) {
+        my $id = "box-$i-$j";
+        $self->map->[$i]->[$j] = $Box->clone({ id => $id });
+      }
+    }
+  }
+});
+
+$boxes->init;
+
+our %C;
 our @C = (
   C(
     Home => [ '/' ],
     get => sub {
       my ($self) = @_;
+      my $v = $self->v;
+      $v->{demo} = 0;
+      $v->{base} = $Stardust::CONFIG{base};
       $self->render('home');
     },
   ),
+
+  # Run curl commands to see servers making requests to clients
   C(
-    Greeting => [ '/greeting' ],
-    post => sub {
+    CurlCommands => [ '/curl_commands' ],
+    get => sub {
       my ($self) = @_;
-      my $message = $self->input->{message};
-      my $ch = Stardust::Controllers::channel('foo');
-      $ch->write({ type => 'Greeting', message => $message });
+      my $v = $self->v;
+      $v->{demo} = $self->name;
+      $v->{base} = $Stardust::CONFIG{base};
+      $self->render('curl_commands');
     },
   ),
+
   C(
-    Background => [ '/background' ],
+    ColorfulBoxes => [ '/colorful_boxes' ],
+    get => sub {
+      my ($self) = @_;
+      my $v = $self->v;
+      $v->{demo}  = $self->name;
+      $v->{base}  = $Stardust::CONFIG{base};
+      $v->{boxes} = $boxes;
+      $self->render('colorful_boxes');
+    },
     post => sub {
       my ($self) = @_;
-      my $color = $self->input->{color};
-    },
+      my $input = $self->input;
+      my $base = $Stardust::CONFIG{base};
+      my $color = $input->{color} || "#ccf";
+      my $url = "http://localhost:5742".Stardust::Controllers::R('Channel', 'colorful_boxes'),
+      my $id = $self->input->{id};
+      my ($blah, $x, $y) = split('-', $id);
+      # my $box = $boxes->map->[$y]->[$x];
+      # $box->color($color);
+      my $body = "m=".encode_json({
+        type  => "ColorBox",
+        id    => $id,
+        color => $color,
+      });
+      http_post(
+        $url,
+        $body,
+        sub {  }
+      );
+      warn "post";
+    }
   ),
+
   C(
-    404 => [ '/(.*)' ],
+    404 => [ '/(.+)' ],
     get => sub {
       my ($self, $path) = @_;
-      $self->status(404);
-      $self->render('404');
+      my $v = $self->v;
+      $v->{demo} = 0;
+      $v->{path} = $path;
+      $v->{base} = $Stardust::CONFIG{base};
+      $self->status = 404;
+      $self->render(404);
     }
   ),
 );
 
 package Stardust::Demo::Views;
+use strict;
+use warnings;
+no  warnings 'once';
+use base 'Tenjin::Context';
 use Squatting ':views';
+use File::ShareDir;
+use Tenjin;
+use Encode;
+{
+  no warnings;
+  eval $Tenjin::Context::defun;
+}
+*escape = sub {
+  my ($s) = @_;
+  $s = encode('utf8', $s);
+  $s =~ s/[&<>"]/$Tenjin::Helper::Html::_escape_table{$&}/ge if ($s);
+  return $s;
+};
+$Tenjin::CONTEXT_CLASS = 'Stardust::Demo::Views';
+
+my $template_path = File::ShareDir::dist_dir('Stardust');
+
+our $tenjin = Tenjin::Engine->new({
+  path    => [ $template_path ],
+  postfix => '.html',
+  cache   => 0,
+});
+
 our @V = (
   V(
-    'default',
-    home => sub {
-      my ($self, $v) = @_;
-      qq|
-        <html>
-          <head>
-            <title>Stardust::Demo</title>
-            <script src="/js/jquery-1.3.2.js"></script>
-            <script src="/js/jquery.ev.js"></script>
-            <script src="/js/demo.js"></script>
-          </head>
-          <body>
-<pre>
-curl -d 'm={ "type": "Greeting", "message": "Hello, World" }' http://localhost:5742/comet/channel/foo
-curl -d 'm={ "type": "Color", "color": "#dea" }' http://localhost:5742/comet/channel/foo
-</pre>
-            <h1>Events</h1>
-            <ul id="events">
-            </ul>
-          </body>
-        </html>
-      |;
+    'tenjin',
+    layout => sub {
+      my ($self, $v, $content) = @_;
+      $v->{content} = $content;
+      $tenjin->render(":layout", $v);
     },
-    404 => sub {
+    _ => sub {
       my ($self, $v) = @_;
-      qq|
-        <html>
-          <head>
-            <title>???</title>
-          </head>
-          <body>
-            No lo tengo.
-          </body>
-        </html>
-      |;
-    },
+      $v->{self} = $self;
+      $tenjin->render(":$self->{template}", $v);
+    }
   ),
 );
 

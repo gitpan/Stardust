@@ -1,4 +1,4 @@
-/* Title: jQuery ev
+/* Title: jQuery.ev
  *
  * A COMET event loop for jQuery
  *
@@ -17,13 +17,19 @@
     verbose  : true,
     timeout  : null,
 
-    run: function(events) {
-      var i;
-      for (i = 0; i < events.length; i++) {
-        var e = events[i];
-        if (!e) continue;
-        var h = this.handlers[e.type];
-        if (h) h(e);
+    /* Method: run
+     *
+     * Respond to an array of messages using the object in this.handlers
+     *
+     */
+    run: function(messages) {
+      var i, m, h; // index, event, handler
+      for (i = 0; i < messages.length; i++) {
+        m = messages[i];
+        if (!m) continue;
+        h = this.handlers[m.type];
+        if (!h) h = this.handlers['*'];
+        if ( h) h(m);
       }
     },
 
@@ -40,11 +46,13 @@
       this.running = false;
     },
 
-    /* 
+    /*
      * Method: loop
      *
+     * Long poll on a URL
+     *
      * Arguments:
-     * 
+     *
      *   url
      *   handler
      *
@@ -52,7 +60,13 @@
     loop: function(url, handlers) {
       var self = this;
       if (handlers) {
-        this.handlers = handlers;
+        if (typeof handlers == "object") {
+          this.handlers = handlers;
+        } else if (typeof handlers == "function") {
+          this.run = handlers;
+        } else {
+          throw("handlers must be an object or function");
+        }
       }
       this.running = true;
       this.xhr = $.ajax({
@@ -60,9 +74,9 @@
         dataType : 'json',
         url      : url,
         timeout  : self.timeout,
-        success  : function(events, status) {
-          // console.log('success', events);
-          self.run(events)
+        success  : function(messages, status) {
+          // console.log('success', messages);
+          self.run(messages)
         },
         complete : function(xhr, status) {
           var delay;
@@ -72,9 +86,8 @@
             // console.log('status: ' + status, '; waiting before long-polling again...');
             delay = 5000;
           }
-          window.setTimeout(function(){
-            if (self.running) self.loop(url);
-          }, delay);
+          // "recursively" loop
+          window.setTimeout(function(){ if (self.running) self.loop(url); }, delay);
         }
       });
     }

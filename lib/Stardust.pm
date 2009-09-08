@@ -7,7 +7,7 @@ use IO::All;
 use Set::Object;
 use File::ShareDir ':ALL';
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 our %CONFIG = (
   debug          => 0,           # Noisy output to STDERR?
@@ -17,7 +17,7 @@ our %CONFIG = (
   channel_length => 8,           # How many messages should a channel hold on to?
   timeout        => 55,          # How many seconds before we end a long-poll request?
   port           => 5742,        # What port should Stardust listen on?
-  base           => '/',         # What should the base path for Stardust's URLs be?
+  base           => '',          # What should the base path for Stardust's URLs be?
 );
 
 sub continue {
@@ -221,7 +221,7 @@ our @C = (
           async { $ch->signal->wait; $activity->broadcast };
         } @ch;
 
-        # when running this behind a reverse proxy,
+        # When running this behind a reverse proxy,
         # it's useful to timeout before your proxy kills the connection.
         push @coros, async {
           my $timeout = Coro::Timer::timeout $CONFIG{timeout};
