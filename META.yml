@@ -17,13 +17,16 @@ no_index:
     - share
     - t
 requires:
+  AnyEvent: 5.12
   AnyEvent::HTTP: 0
+  Continuity: 1.00
+  Coro: 5.17
   File::ShareDir: 0
   JSON: 0
   Set::Object: 0
   Squatting: 0.70
   Sys::Hostname: 0
-  Tenjin: 0
+  Tenjin: 0.04
   aliased: 0
   perl: 5.8.0
-version: 0.03
+version: 0.04
