@@ -7,7 +7,7 @@ use IO::All;
 use Set::Object;
 use File::ShareDir ':ALL';
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 our %CONFIG = (
   debug          => 0,           # Noisy output to STDERR?
@@ -288,10 +288,11 @@ web applications.
 
 =head2 Message
 
+Messages are just abritrary JSON objects.
+
 =head2 Channel
 
-=head2 Long Polling
-
+Channels are where messages travel trough.
 
 
 =head1 API
@@ -356,13 +357,47 @@ They will come back to you as a JSON-encoded array of objects.
 
 =head2 nginx fastcgi + stardust
 
+TODO
+
 =head2 nginx reverse proxy + stardust
+
+TODO
 
 =head2 apache2 static + stardust
 
+TODO
+
 =head2 apache2 fastcgi + stardust
 
+TODO
+
 =head2 apache2 reverse proxy + stardust
+
+TODO
+
+=head1 SEE ALSO
+
+=over 4
+
+=item GitHub Repository
+
+L<http://github.com/beppu/stardust/tree/master>
+
+=item jQuery.ev
+
+L<http://github.com/beppu/jquery-ev/tree/master>
+
+=item AnyEvent, Coro, Continuity
+
+L<AnyEvent>, L<Coro>, L<Continuity>
+
+=item Squatting
+
+L<Squatting>
+
+L<http://groups.google.com/group/squatting-framework>
+
+=back
 
 =head1 AUTHOR
 

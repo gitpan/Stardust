@@ -49,25 +49,34 @@
 
 
 <html:textarea id="builtinCode" style="visibility: collapse">
-TITLE::Stardust COMET Server
+TITLE::Stardust - a simple COMET server
+HEADER::YAPC::Asia 2009
 Stardust
-COMET
-Server
+a simple COMET Server
+FOOTER::by John BEPPU
 ----
-HEADER::Goals
-Easy to use
+HEADER::my $self;
+John Beppu
+CPAN ID: BEPPU
+[[http://search.cpan.org/~beppu]]
+[[http://github.com/beppu]]
+FOOTER::la.pm (Los Angeles)
 ----
-Useful to non-Perl users
+HEADER::
+What is COMET?
+COMETって何?
+FOOTER::Server Push
+----
+HEADER::Stardust is built on top of:
+AnyEvent,
+Coro,
+Continuity
+FOOTER::
 ----
 HEADER::Concepts
-Concepts
-FOOTER::A few things you should understand.
-----
 Messages
-----
 Channels
-----
-Long Polling
+FOOTER::IRCみたい
 ----
 HEADER::HTTP API
 [[PRE:GET  /
@@ -75,7 +84,7 @@ GET  /channel
 GET  /channel/:names
 POST /channel/:names
 GET* /channel/:names/stream/:client_id:PRE]]
-FOOTER::
+FOOTER::JSONとHTTP
 ----
 HEADER::GET /
 This returns info about the server 
@@ -101,7 +110,7 @@ HEADER::POST /channel/:names
 This sends messages
 to the specified channels.
 ***
-チャンネルにメセジを送る
+チャンネルにメッセージを送る
 ----
 HEADER::GET /channel/:names/stream/:client_id
 Long polling on this URL will
@@ -109,7 +118,7 @@ let you get messages from the
 specified channels as they become
 available
 ***
-Long-pollしながらチャンネルからメセジをもらう
+Long-pollしながらチャンネルからメッセージをもらう
 ----
 HEADER::Configuration
 [[PRE:#
@@ -118,38 +127,57 @@ HEADER::Configuration
 
 server {
   listen 80;
-  server_name stardust.com.et;
+  server_name example.com;
   location / {
-    root   /thttpd/stardust.com.et;
+    root   /www/example.com;
     index  index.html index.htm;
   }
-  #                                  #
-  #                                  #
-  #                                  #
+  #                            #
+  #                            #
+  #                            #
 }:PRE]]
 FOOTER::ngingx static
 ----
-[[PRE:upstream stardust_com_et {
+[[PRE:upstream stardust {
   server 127.0.0.1:5742;
 }
 
 server {
   listen 80;
-  server_name stardust.com.et;
+  server_name example.com;
   location / {
-    root   /thttpd/stardust.com.et;
+    root   /www/example.com;
     index  index.html index.htm;
   }
   location /comet {
-    proxy_pass http://stardust_com_et;
+    proxy_pass http://stardust;
   }
 }:PRE]]
 FOOTER::ngingx static + stardust
 ----
 HEADER::
 FOOTER::
-説明
-おわり
+Apacheでも
+これみたいな
+configをできると思う。
+----
+HEADER::Download
+[[http://search.cpan.org/dist/Stardust/]]
+[[http://github.com/beppu/stardust/tree/master]]
+----
+HEADER::
+DEMO
+FOOTER::
+----
+HEADER::ごめんなさい。
+Internet Explorerを
+使わないでください。
+FOOTER::BUGがある。 :(
+----
+HEADER::
+stardust.pl --demo
+[[http://stardust.bavl.org/demo/]]
+FOOTER::!!! IEを使わないでください !!!
 </html:textarea>
 
 
