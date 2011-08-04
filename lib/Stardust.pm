@@ -2,12 +2,12 @@ package Stardust;
 use 5.008;
 use strict;
 use warnings;
-use base 'Squatting';
+use Squatting;
 use IO::All;
 use Set::Object;
 use File::ShareDir ':ALL';
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 our %CONFIG = (
   debug          => 0,           # Noisy output to STDERR?
@@ -38,7 +38,6 @@ package Stardust::Controllers;
 use strict;
 use warnings;
 use aliased 'Squatting::H';
-use Squatting ':controllers';
 use Time::HiRes 'time';
 use JSON;
 use AnyEvent;
@@ -347,7 +346,7 @@ They will come back to you as a JSON-encoded array of objects.
     listen 80;
     server_name stardust.com.et;
     location / {
-      root   /thttpd/stardust.com.et;
+      root   /www/stardust.com.et;
       index  index.html index.htm;
     }
     location /comet {
@@ -365,7 +364,25 @@ TODO
 
 =head2 apache2 static + stardust
 
-TODO
+  <VirtualHost *:80>             
+                                 
+    ServerName stardust.com.et
+    DocumentRoot /www/stardust.com.et
+    CustomLog logs/stardust.com.et-access_log combined
+    ErrorLog  logs/stardust.com.et-error_log
+
+    <Directory "/www/stardust.com.et">         
+      Options Indexes FollowSymLinks  
+      AllowOverride All
+      Order allow,deny
+      Allow from all
+    </Directory>
+
+    ProxyRequests Off
+    ProxyPass        /comet http://127.0.0.1:5742/comet
+    ProxyPassReverse /comet http://127.0.0.1:5742/comet
+
+  </VirtualHost>
 
 =head2 apache2 fastcgi + stardust
 

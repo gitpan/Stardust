@@ -1,11 +1,10 @@
 package Stardust::Demo;
 use strict;
 use warnings;
-use base 'Squatting';
+use Squatting;
 use Data::Dump 'pp';
 
 package Stardust::Demo::Controllers;
-use Squatting ':controllers';
 use AnyEvent::HTTP;
 use JSON;
 use Data::Dump 'pp';
@@ -114,7 +113,6 @@ use strict;
 use warnings;
 no  warnings 'once';
 use base 'Tenjin::Context';
-use Squatting ':views';
 use File::ShareDir;
 use Tenjin;
 use Encode;
@@ -135,7 +133,7 @@ $Tenjin::CONTEXT_CLASS = 'Stardust::Demo::Views';
 
 my $template_path = File::ShareDir::dist_dir('Stardust');
 
-our $tenjin = Tenjin::Engine->new({
+our $tenjin = Tenjin->new({
   path    => [ $template_path ],
   postfix => '.html',
   cache   => 0,
